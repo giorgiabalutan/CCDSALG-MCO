@@ -1,6 +1,6 @@
 public class Queue
 {
-    int queue[];
+    String queue[];
     int head = 0;
     int tail = 0;
     int size;
@@ -8,7 +8,7 @@ public class Queue
     //Constructor Method for creating the queue with size input
     public Queue(int setSize)
     {
-        this.queue = new int[setSize];
+        this.queue = new String[setSize];
         this.size = setSize;
     }
 
@@ -25,7 +25,7 @@ public class Queue
     }
 
     //Enqueues an element to the tail of the queue
-    public void enqueue(int element)
+    public void enqueue(String element)
     {
         //Throws an exception if it's full
         if(this.queueFull()){
@@ -38,22 +38,22 @@ public class Queue
     }
 
     //Dequeues an element from the head of the queue and returns it
-    public int dequeue()
+    public String dequeue()
     {
         //Throws an exception if it's empty
         if(this.queueEmpty()){
             throw new IllegalStateException("Can't dequeue, the queue is currently empty");
         }else{
             //Dequeues and returns the element
-            int ret = this.queue[head];
-            this.queue[head] = 0;
+            String ret = this.queue[head];
+            this.queue[head] = "";
             head++;
             return ret;
         }
     }
 
     //Returns the value at the Head of the queue
-    public int queueHead()
+    public String queueHead()
     {
         //Throws an exception if the queue is empty
         if(this.queueEmpty()){
@@ -65,7 +65,7 @@ public class Queue
     }
 
     //Returns the value at the Tail of the queue
-    public int queueTail()
+    public String queueTail()
     {
         //Throws an exception if the queue is empty
         if(this.queueEmpty()){

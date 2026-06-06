@@ -1,13 +1,13 @@
 public class Stack
 {
-    int stack[];
+    String stack[];
     int top = 0;
     int size;
 
     //Constructor Method for creating the stack with size input
     public Stack(int setSize)
     {
-        this.stack = new int[setSize];
+        this.stack = new String[setSize];
         this.size = setSize;
     }
 
@@ -24,7 +24,7 @@ public class Stack
     }
 
     //Adds an element to the top of the stack
-    public void push(int element)
+    public void push(String element)
     {
         //If the stack is full, throws an exception that can be caught in the main program using catch
         if(this.stackFull()){
@@ -37,7 +37,7 @@ public class Stack
     }
 
     //Removes an element from the top of the stack
-    public int pop()
+    public String pop()
     {
         //If the stack is empty, throws an exception that can be caught in the main program using catch
         if(this.stackEmpty()){
@@ -45,14 +45,14 @@ public class Stack
         }else{
             //Removes and Returns the element
             top--;
-            int ret = this.stack[top];
-            this.stack[top] = 0;
+            String ret = this.stack[top];
+            this.stack[top] = "";
             return ret;
         }
     }
 
     //Returns the top element without removing it
-    public int top()
+    public String top()
     {
         //If the stack is empty, throws an exception that can be caught in the main program using catch
         if(this.stackEmpty()){
@@ -92,7 +92,7 @@ public class Stack
     {
         Stack tempS1 = new Stack(20);
         Queue tempQ1 = new Queue(20);
-        int x1;
+        String x1;
         int j;
 
         j = 0;
