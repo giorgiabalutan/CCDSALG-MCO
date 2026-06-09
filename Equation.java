@@ -39,11 +39,14 @@ public class Equation
                     operators.pop();
                 }else{
                     int prec1 = t.getPrecedence();
-                    int prec2 = operators.top().getPrecedence();
-                    while(prec1 < prec2 || prec1 == prec2 && t.isRightAssociative())
-                    {
-                        result[index] = operators.pop();
-                        index++;
+                    int prec2;
+                    if(!operators.stackEmpty()){
+                        prec2 = operators.top().getPrecedence();
+                        while(prec1 < prec2 || prec1 == prec2 && t.isRightAssociative())
+                        {
+                            result[index] = operators.pop();
+                            index++;
+                        }
                     }
                     operators.push(t);
                 }
@@ -62,6 +65,18 @@ public class Equation
         }
 
         return 0;
+    }
+
+    public void printEq()
+    {
+        for (int i = 0; i < this.tokenCount; i++) {
+            if(this.equation[i].getType() == Token.Type.OPERAND)
+            {
+                System.out.print(this.equation[i].getOperand());
+            }else{
+                System.out.print(this.equation[i].getOperator());
+            }
+        }
     }
 
 }
