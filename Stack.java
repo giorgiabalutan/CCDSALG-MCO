@@ -70,7 +70,13 @@ public class Stack
         System.out.print("Bottom |");
         for (int i = 0; i < top; i++)
         {
-            System.out.print(this.stack[i]);
+            //System.out.print(this.stack[i]);
+            if(this.stack[i].getType() == Token.Type.OPERAND)
+            {
+                System.out.print(this.stack[i].getOperand());
+            }else{
+                System.out.print(this.stack[i].getOperator());
+            }
             System.out.print("|");
         }
         System.out.println(" Top");
