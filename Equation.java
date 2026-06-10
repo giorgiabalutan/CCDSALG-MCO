@@ -92,4 +92,54 @@ public class Equation
         }
     }
 
+    public int evaluatePrefix()
+    {
+        Stack operandTokens = new Stack(tokenCount);
+        int i;
+        Token result;
+
+        for (i = tokenCount-1; i > -1; i--)
+        {
+            Token currToken = this.equation[i];
+            if (currToken.getType() == Token.Type.OPERAND)
+            {
+                operandTokens.push(currToken);
+            }
+            else
+            {
+                int operand1 = operandTokens.pop().getOperand();
+                int operand2 = operandTokens.pop().getOperand();
+                Token combined;
+
+                if (currToken.getOperator() == '+')
+                {
+                    combined = new Token(operand1 + operand2);
+                    operandTokens.push(combined);
+                }
+                else if (currToken.getOperator() == '-')
+                {
+                    combined = new Token(operand1 - operand2);
+                    operandTokens.push(combined);
+                }
+                else if (currToken.getOperator() == '*')
+                {
+                    combined = new Token(operand1 * operand2);
+                    operandTokens.push(combined);
+                }
+                else if (currToken.getOperator() == '/')
+                {
+                    combined = new Token(operand1 / operand2);
+                    operandTokens.push(combined);
+                }
+                else if (currToken.getOperator() == '^')
+                {
+                    combined = new Token((int)Math.pow(operand1, operand2));
+                    operandTokens.push(combined);
+                }
+            }
+        }
+
+        return operandTokens.pop().getOperand();
+    }
+
 }
