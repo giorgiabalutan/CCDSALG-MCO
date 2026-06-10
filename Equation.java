@@ -42,7 +42,7 @@ public class Equation
                     int prec2;
                     if(!operators.stackEmpty()){
                         prec2 = operators.top().getPrecedence();
-                        while(prec1 < prec2 || prec1 == prec2 && t.isRightAssociative())
+                        while(!operators.stackEmpty() && (prec1 < prec2 || prec1 == prec2 && t.isRightAssociative()))
                         {
                             result[index] = operators.pop();
                             index++;
