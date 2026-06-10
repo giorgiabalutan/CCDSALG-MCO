@@ -22,6 +22,16 @@ public class Equation
         for(int i = tokenCount-1; i > -1; i--)
         {
             Token t = this.equation[i];
+            // if(this.equation[i].getType() == Token.Type.OPERAND)
+            // {
+            //     System.out.println(this.equation[i].getOperand());
+            // }else{
+            //     System.out.println(this.equation[i].getOperator());
+            // }
+            // if(!operators.stackEmpty())
+            // {
+            //     System.out.println(operators.top().getOperator() != ')');
+            // }
             if (t.getType() == Token.Type.OPERAND)
             {
                 result[index] = t;
@@ -31,18 +41,21 @@ public class Equation
                 if (t.getOperator() == ')')
                 {
                     operators.push(t);
+                    this.tokenCount--;
                 }else if (t.getOperator() == '('){
-                    while(operators.top().getOperator() != ')'){
+                    while((!operators.stackEmpty()) && (operators.top().getOperator() != ')')){
+                        //operators.show();
                         result[index] = operators.pop();
                         index++;
                     }
                     operators.pop();
+                    this.tokenCount--;
                 }else{
                     int prec1 = t.getPrecedence();
                     int prec2;
                     if(!operators.stackEmpty()){
                         prec2 = operators.top().getPrecedence();
-                        while(!operators.stackEmpty() && (prec1 < prec2 || prec1 == prec2 && t.isRightAssociative()))
+                        while(!operators.stackEmpty()  && (operators.top().getOperator() != ')') && (prec1 < prec2 || prec1 == prec2 && t.isRightAssociative()))
                         {
                             result[index] = operators.pop();
                             index++;
