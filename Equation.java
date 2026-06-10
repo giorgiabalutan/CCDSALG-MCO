@@ -39,11 +39,14 @@ public class Equation
                     operators.pop();
                 }else{
                     int prec1 = t.getPrecedence();
-                    int prec2 = operators.top().getPrecedence();
-                    while(prec1 < prec2 || prec1 == prec2 && t.isRightAssociative())
-                    {
-                        result[index] = operators.pop();
-                        index++;
+                    int prec2;
+                    if(!operators.stackEmpty()){
+                        prec2 = operators.top().getPrecedence();
+                        while(prec1 < prec2 || prec1 == prec2 && t.isRightAssociative())
+                        {
+                            result[index] = operators.pop();
+                            index++;
+                        }
                     }
                     operators.push(t);
                 }
@@ -62,6 +65,68 @@ public class Equation
         }
 
         return 0;
+    }
+
+    public void printEq()
+    {
+        for (int i = 0; i < this.tokenCount; i++) {
+            if(this.equation[i].getType() == Token.Type.OPERAND)
+            {
+                System.out.print(this.equation[i].getOperand());
+            }else{
+                System.out.print(this.equation[i].getOperator());
+            }
+        }
+    }
+
+    public int evaluatePrefix()
+    {
+        Stack operandTokens = new Stack(tokenCount);
+        int i;
+        Token result;
+
+        for (i = tokenCount-1; i > -1; i--)
+        {
+            Token currToken = this.equation[i];
+            if (currToken.getType() == Token.Type.OPERAND)
+            {
+                operandTokens.push(currToken);
+            }
+            else
+            {
+                int operand1 = operandTokens.pop().getOperand();
+                int operand2 = operandTokens.pop().getOperand();
+                Token combined;
+
+                if (currToken.getOperator() == '+')
+                {
+                    combined = new Token(operand1 + operand2);
+                    operandTokens.push(combined);
+                }
+                else if (currToken.getOperator() == '-')
+                {
+                    combined = new Token(operand1 - operand2);
+                    operandTokens.push(combined);
+                }
+                else if (currToken.getOperator() == '*')
+                {
+                    combined = new Token(operand1 * operand2);
+                    operandTokens.push(combined);
+                }
+                else if (currToken.getOperator() == '/')
+                {
+                    combined = new Token(operand1 / operand2);
+                    operandTokens.push(combined);
+                }
+                else if (currToken.getOperator() == '^')
+                {
+                    combined = new Token((int)Math.pow(operand1, operand2));
+                    operandTokens.push(combined);
+                }
+            }
+        }
+
+        return operandTokens.pop().getOperand();
     }
 
 }
