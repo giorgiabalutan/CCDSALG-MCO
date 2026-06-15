@@ -10,6 +10,7 @@ public class Driver
         //  - division by zero
         String[] testExpressions = new String[] {
             "(1+(2*5)/3)^2*2+1",   //valid expression
+            "(4+7*9/(5^2+9)-(8*0+3-2)^2)+2-(2+(3*10-9*3)^2-5/12+21/2)/((2^2^5-4+3)-(22-3*5)^2+10*5+(2-3*0*(5-3)))",
             "(3 + 12",             //mismatched parentheses (missing ')')
             "3 + 1)",              //mismatched parentheses (extra ')')
             "23 $ 1",              //invalid character
