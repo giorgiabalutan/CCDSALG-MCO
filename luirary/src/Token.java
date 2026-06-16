@@ -34,6 +34,7 @@ public class Token
             case '+':
             case '-':
                 this.precedence = 1;
+                break;
             default:
                 this.precedence = -2;
         }
