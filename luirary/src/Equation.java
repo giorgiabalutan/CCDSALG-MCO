@@ -123,8 +123,6 @@ public class Equation
         }
     }
 
-    //Classifies a token into one of the categories used to validate the
-    //order in which tokens may appear
     private TokenCategory categorize(Token t)
     {
         TokenCategory category;
@@ -183,14 +181,11 @@ public class Equation
         return valid;
     }
 
-    //Checks whether the equation is allowed to end on a token of this category
     private boolean isValidEnding(TokenCategory last)
     {
         return (last == TokenCategory.OPERAND || last == TokenCategory.CLOSE_PARENTHESIS);
     }
 
-    //Return type int
-    //Return 0 if successful, other numbers for different error handlers?
     public int convertInfixToPrefix()
     {
         Token[] result = new Token[tokenCount];

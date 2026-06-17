@@ -8,17 +8,18 @@ public class Driver
         //  - invalid characters/operators
         //  - malformed expressions
         //  - division by zero
-        String[] testExpressions = new String[] {
-            "(1+(2*5)/3)^2*2+1",   //valid expression
-            "(3 + 12",             //mismatched parentheses (missing ')')
-            "3 + 1)",              //mismatched parentheses (extra ')')
-            "23 $ 1",              //invalid character
-            "2 + * 3",             //malformed expression (operator after operator)
-            "2 3 + 4",             //malformed expression (operand after operand)
-            "(2 + 3",              //malformed/mismatched (ends mid-expression)
-            "10 / (5 - 5)",        //division by zero
-            "20 % (4 - 4)",        //modulo by zero
-            "100 / (2 - 7)",       //valid, negative intermediate result
+        String[] testExpressions = new String[]
+                {
+            "(1+(2*5)/3)^2*2+1",
+            "(3 + 12",
+            "3 + 1)",
+            "23 $ 1",
+            "2 + * 3",
+            "2 3 + 4",
+            "(2 + 3",
+            "10 / (5 - 5)",
+            "20 % (4 - 4)",
+            "100 / (2 - 7)",
         };
 
         int i = 0;
@@ -31,9 +32,6 @@ public class Driver
         }
     }
 
-    //Tokenizes, validates, converts, and evaluates a single expression,
-    //printing the result or an explicit error message describing what
-    //went wrong.
     public static void processExpression(String expression)
     {
         Tokenizer tokenizer = new Tokenizer();
@@ -59,10 +57,6 @@ public class Driver
         }
     }
 
-    //Converts and evaluates an equation that has already passed all syntax
-    //checks, printing the prefix form and the final result. Still guards
-    //against a division/modulo by zero error, which can only be detected
-    //while evaluating.
     private static void evaluateValidEquation(Equation equation)
     {
         try
