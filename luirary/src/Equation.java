@@ -200,16 +200,6 @@ public class Equation
         for(int i = tokenCount-1; i > -1; i--)
         {
             Token t = this.equation[i];
-            // if(this.equation[i].getType() == Token.Type.OPERAND)
-            // {
-            //     System.out.println(this.equation[i].getOperand());
-            // }else{
-            //     System.out.println(this.equation[i].getOperator());
-            // }
-            // if(!operators.stackEmpty())
-            // {
-            //     System.out.println(operators.top().getOperator() != ')');
-            // }
             if (t.getType() == Token.Type.OPERAND)
             {
                 result[index] = t;
@@ -222,7 +212,7 @@ public class Equation
                     this.tokenCount--;
                 }else if (t.getOperator() == '('){
                     while((!operators.stackEmpty()) && (operators.top().getOperator() != ')')){
-                        //operators.show();
+                        
                         result[index] = operators.pop();
                         index++;
                     }
@@ -258,6 +248,7 @@ public class Equation
         return 0;
     }
 
+    //Prints the prefix equation
     public void printEq()
     {
         for (int i = 0; i < this.tokenCount; i++) {
@@ -270,6 +261,10 @@ public class Equation
         }
     }
 
+    //Evalues the given prefix equation
+    //Operands are pushed to a stack until an operator appears
+    //Once operator appears, two operands will be popped and will
+    //be computed with the operator
     public int evaluatePrefix()
     {
         Stack operandTokens = new Stack(tokenCount);
