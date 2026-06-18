@@ -22,9 +22,10 @@ public class Token
             case '(':
             case ')':
                 this.precedence = 4;
+                break;
             case '^':
                 this.precedence = 3;
-                rightAssociativity = true;
+                this.rightAssociativity = true;
                 break;
             case '*':
             case '/':
@@ -34,8 +35,10 @@ public class Token
             case '+':
             case '-':
                 this.precedence = 1;
+                break;
             default:
                 this.precedence = -2;
+                break;
         }
     }
 
