@@ -123,6 +123,8 @@ public class Equation
         }
     }
 
+    //Classifies a token into one of the categories used to validate the
+    //order in which tokens may appear
     private TokenCategory categorize(Token t)
     {
         TokenCategory category;
@@ -181,11 +183,14 @@ public class Equation
         return valid;
     }
 
+    //Checks whether the equation is allowed to end on a token of this category
     private boolean isValidEnding(TokenCategory last)
     {
         return (last == TokenCategory.OPERAND || last == TokenCategory.CLOSE_PARENTHESIS);
     }
 
+    //Return type int
+    //Return 0 if successful, other numbers for different error handlers?
     public int convertInfixToPrefix()
     {
         Token[] result = new Token[tokenCount];
@@ -195,6 +200,16 @@ public class Equation
         for(int i = tokenCount-1; i > -1; i--)
         {
             Token t = this.equation[i];
+            // if(this.equation[i].getType() == Token.Type.OPERAND)
+            // {
+            //     System.out.println(this.equation[i].getOperand());
+            // }else{
+            //     System.out.println(this.equation[i].getOperator());
+            // }
+            // if(!operators.stackEmpty())
+            // {
+            //     System.out.println(operators.top().getOperator() != ')');
+            // }
             if (t.getType() == Token.Type.OPERAND)
             {
                 result[index] = t;
@@ -207,7 +222,7 @@ public class Equation
                     this.tokenCount--;
                 }else if (t.getOperator() == '('){
                     while((!operators.stackEmpty()) && (operators.top().getOperator() != ')')){
-                        
+                        //operators.show();
                         result[index] = operators.pop();
                         index++;
                     }
@@ -222,6 +237,9 @@ public class Equation
                         {
                             result[index] = operators.pop();
                             index++;
+                            if(!operators.stackEmpty()){
+                                prec2 = operators.top().getPrecedence();
+                            }
                         }
                     }
                     operators.push(t);
@@ -243,23 +261,117 @@ public class Equation
         return 0;
     }
 
-    //Prints the prefix equation
+    //For Debugging
+    public int convertInfixToPrefixPrintSteps()
+    {
+        Token[] result = new Token[tokenCount];
+        Stack operators = new Stack(tokenCount);
+        int index = 0;
+        //Iterates through the equation in reverse
+        for(int i = tokenCount-1; i > -1; i--)
+        {
+            System.out.println("-------------------------");
+            System.out.print("Incoming Token: ");
+            Token t = this.equation[i];
+            if(t.getType() == Token.Type.OPERAND)
+            {
+                System.out.print(t.getOperand() + " ");
+            }else{
+                System.out.print(t.getOperator() + " ");
+            }
+            System.out.println("");
+            // if(this.equation[i].getType() == Token.Type.OPERAND)
+            // {
+            //     System.out.println(this.equation[i].getOperand());
+            // }else{
+            //     System.out.println(this.equation[i].getOperator());
+            // }
+            // if(!operators.stackEmpty())
+            // {
+            //     System.out.println(operators.top().getOperator() != ')');
+            // }
+            if (t.getType() == Token.Type.OPERAND)
+            {
+                result[index] = t;
+                index++;
+            }else{
+                //Checking for ) instead of ( as ) will appear first with a reversed equation
+                if (t.getOperator() == ')')
+                {
+                    operators.push(t);
+                    this.tokenCount--;
+                }else if (t.getOperator() == '('){
+                    while((!operators.stackEmpty()) && (operators.top().getOperator() != ')')){
+                        //operators.show();
+                        System.out.println("Popped " + operators.top().getOperator() + " from Operator Stack");
+                        result[index] = operators.pop();
+                        index++;
+                    }
+                    operators.pop();
+                    this.tokenCount--;
+                }else{
+                    int prec1 = t.getPrecedence();
+                    int prec2;
+                    if(!operators.stackEmpty()){
+                        prec2 = operators.top().getPrecedence();
+                        while(!operators.stackEmpty()  && (operators.top().getOperator() != ')') && (prec1 < prec2 || prec1 == prec2 && t.isRightAssociative()))
+                        {
+                            System.out.println("Incoming Precedence: " + prec1);
+                            System.out.println("Stack Precedence: " + prec2);
+                            System.out.println("Incoming Operator Associativity: " + t.isRightAssociative());
+                            System.out.println("Popped " + operators.top().getOperator() + " from Operator Stack");
+                            result[index] = operators.pop();
+                            index++;
+                            if(!operators.stackEmpty()){
+                                prec2 = operators.top().getPrecedence();
+                            }
+                        }
+                    }
+                    operators.push(t);
+                }
+            }
+            //Print Operand Stack
+            operators.show();
+
+            //Print Results
+            for (int j = 0; j < index; j++) {
+                if(result[j].getType() == Token.Type.OPERAND)
+                {
+                    System.out.print(result[j].getOperand() + " ");
+                }else{
+                    System.out.print(result[j].getOperator() + " ");
+                }
+            }
+            System.out.println("");
+        }
+
+        while (!operators.stackEmpty())
+        {
+            result[index] = operators.pop();
+            index++;
+        }
+
+        for (int i = 0; i < tokenCount; i++)
+        {
+            this.equation[i] = result[tokenCount-1-i];
+        }
+
+        return 0;
+    }
+
+
     public void printEq()
     {
         for (int i = 0; i < this.tokenCount; i++) {
             if(this.equation[i].getType() == Token.Type.OPERAND)
             {
-                System.out.print(this.equation[i].getOperand());
+                System.out.print(this.equation[i].getOperand() + " ");
             }else{
-                System.out.print(this.equation[i].getOperator());
+                System.out.print(this.equation[i].getOperator() + " ");
             }
         }
     }
 
-    //Evalues the given prefix equation
-    //Operands are pushed to a stack until an operator appears
-    //Once operator appears, two operands will be popped and will
-    //be computed with the operator
     public int evaluatePrefix()
     {
         Stack operandTokens = new Stack(tokenCount);
