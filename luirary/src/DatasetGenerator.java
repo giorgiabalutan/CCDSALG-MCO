@@ -29,17 +29,56 @@ public class DatasetGenerator
         {
             StringBuilder sb    = new StringBuilder();
             int tokensSoFar     = 0;
+            //Tracks how many '^' operators were chosen in a row so chained
+            //exponentiation (e.g. 9 ^ 7 ^ 9) cannot blow past what a double
+            //can represent. Resets whenever a non-'^' operator is chosen.
+            int consecutiveCarets = 0;
+            //Counts '^' tokens seen anywhere so far in the expression. Since
+            //'^' binds tighter than +/-/% chains and groups right-to-left,
+            //long expressions can still indirectly accumulate several '^'
+            //results that later get multiplied together; capping the total
+            //number of '^' tokens keeps every individual sub-result small.
+            int totalCarets = 0;
+            int maxCarets = 6;
 
             while (tokensSoFar < n)
             {
                 if (tokensSoFar % 2 == 0)
                 {
-                    sb.append(rand.nextInt(9) + 1);
+                    //Right after a '^' operator, keep the operand small so the
+                    //chain stays representable (e.g. 9 ^ 2, not 9 ^ 9).
+                    if (consecutiveCarets > 0)
+                    {
+                        sb.append(rand.nextInt(2) + 1);
+                    }
+                    else
+                    {
+                        sb.append(rand.nextInt(9) + 1);
+                    }
                 }
                 else
                 {
+                    char chosenOp = allOps[rand.nextInt(allOps.length)];
+
+                    //Disallow two '^' in a row, and stop offering '^' at all
+                    //once the expression already contains several of them.
+                    while (chosenOp == '^' && (consecutiveCarets >= 1 || totalCarets >= maxCarets))
+                    {
+                        chosenOp = allOps[rand.nextInt(allOps.length)];
+                    }
+
+                    if (chosenOp == '^')
+                    {
+                        consecutiveCarets++;
+                        totalCarets++;
+                    }
+                    else
+                    {
+                        consecutiveCarets = 0;
+                    }
+
                     sb.append(' ');
-                    sb.append(allOps[rand.nextInt(allOps.length)]);
+                    sb.append(chosenOp);
                     sb.append(' ');
                 }
                 tokensSoFar++;
@@ -63,6 +102,13 @@ public class DatasetGenerator
         PrintWriter writer = openWriter(filename);
         boolean writerOk   = (writer != null);
         int depth = 1;
+        //Expressions in this category are built left-to-right with explicit
+        //parentheses around every step (e.g. ((1 + 2) * 3)), so the actual
+        //evaluation order exactly matches the order tokens are appended here.
+        //This lets us track the running result as a double and reject any
+        //operator/operand pair that would push it toward overflow, instead
+        //of only special-casing repeated '^'.
+        double safeLimit = 1.0e15;
 
         while (writerOk && depth <= 2499)
         {
@@ -75,16 +121,23 @@ public class DatasetGenerator
                 i++;
             }
 
-            sb.append(rand.nextInt(9) + 1);
+            int firstOperand = rand.nextInt(9) + 1;
+            sb.append(firstOperand);
+            double runningValue = firstOperand;
 
             int level = 0;
             while (level < depth)
             {
+                char chosenOp = pickSafeOperator(allOps, rand, runningValue, safeLimit);
+                int nextOperand = pickSafeOperand(chosenOp, rand, runningValue, safeLimit);
+
                 sb.append(' ');
-                sb.append(allOps[rand.nextInt(allOps.length)]);
+                sb.append(chosenOp);
                 sb.append(' ');
-                sb.append(rand.nextInt(9) + 1);
+                sb.append(nextOperand);
                 sb.append(')');
+
+                runningValue = applyOperator(runningValue, chosenOp, nextOperand);
                 level++;
             }
 
@@ -98,6 +151,134 @@ public class DatasetGenerator
             writer.close();
             System.out.println("Category 2 written to " + filename);
         }
+    }
+
+    //Chooses an operator at random, but re-rolls if applying it (with any
+    //operand the corresponding pickSafeOperand could produce) would risk
+    //pushing the running value past safeLimit. Falls back to '+' if no
+    //random draw lands on a safe operator within a reasonable number of tries.
+    private static char pickSafeOperator(char[] allOps, Random rand, double runningValue, double safeLimit)
+    {
+        char chosen = '+';
+        boolean found = false;
+        int attempts = 0;
+
+        while (!found && attempts < 20)
+        {
+            char candidate = allOps[rand.nextInt(allOps.length)];
+
+            if (isOperatorSafe(candidate, runningValue, safeLimit))
+            {
+                chosen = candidate;
+                found = true;
+            }
+
+            attempts++;
+        }
+
+        return chosen;
+    }
+
+    //Returns true if applying this operator to runningValue cannot push the
+    //result past safeLimit, regardless of which small operand (1-9) is used.
+    private static boolean isOperatorSafe(char op, double runningValue, double safeLimit)
+    {
+        boolean safe;
+        double magnitude = Math.abs(runningValue);
+
+        if (op == '^')
+        {
+            //Even a small exponent (e.g. 2) on a large base can overflow,
+            //so '^' is only considered safe while the running value is small.
+            safe = (magnitude <= 1000.0);
+        }
+        else if (op == '*')
+        {
+            //Worst case operand is 9
+            safe = (magnitude * 9.0 <= safeLimit);
+        }
+        else
+        {
+            //+, -, /, % all shrink or only mildly grow the magnitude
+            safe = true;
+        }
+
+        return safe;
+    }
+
+    //Picks an operand appropriate for the chosen operator. For '^', keeps the
+    //exponent small so the result stays representable even on a sizeable base.
+    private static int pickSafeOperand(char op, Random rand, double runningValue, double safeLimit)
+    {
+        int operand;
+
+        if (op == '^')
+        {
+            double magnitude = Math.abs(runningValue);
+
+            if (magnitude > 1.0)
+            {
+                //Choose the largest safe exponent (at least 1) so the result
+                //stays at or below safeLimit: base^exp <= safeLimit
+                double maxExponent = Math.log(safeLimit) / Math.log(magnitude);
+                int cap = (int) Math.floor(maxExponent);
+
+                if (cap < 1)
+                {
+                    cap = 1;
+                }
+                if (cap > 9)
+                {
+                    cap = 9;
+                }
+
+                operand = rand.nextInt(cap) + 1;
+            }
+            else
+            {
+                operand = rand.nextInt(9) + 1;
+            }
+        }
+        else
+        {
+            operand = rand.nextInt(9) + 1;
+        }
+
+        return operand;
+    }
+
+    //Applies a single operator/operand pair to the running value, mirroring
+    //exactly what Equation.evaluatePrefix would compute for that step.
+    private static double applyOperator(double runningValue, char op, int operand)
+    {
+        double result;
+
+        if (op == '+')
+        {
+            result = runningValue + operand;
+        }
+        else if (op == '-')
+        {
+            result = runningValue - operand;
+        }
+        else if (op == '*')
+        {
+            result = runningValue * operand;
+        }
+        else if (op == '/')
+        {
+            result = runningValue / operand;
+        }
+        else if (op == '%')
+        {
+            result = runningValue % operand;
+        }
+        else
+        {
+            result = Math.pow(runningValue, operand);
+        }
+
+        return result;
     }
 
     private static void generateCategory3(String filename, long seed)
@@ -290,13 +471,13 @@ public class DatasetGenerator
         StringBuilder sb = new StringBuilder();
 
         int baseLen = n - 1;
-        if (baseLen % 2 == 0)
+        if (baseLen % 2 == 0)//
         {
             baseLen--;
         }
-        if (baseLen < 1)
+        if (baseLen < 1)//
         {
-            baseLen = 1;
+            baseLen = 1;//
         }
 
         int added = 0;
