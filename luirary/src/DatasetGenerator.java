@@ -477,7 +477,7 @@ public class DatasetGenerator
         }
         if (baseLen < 1)//
         {
-            baseLen = 1;
+            baseLen = 1;//
         }
 
         int added = 0;
