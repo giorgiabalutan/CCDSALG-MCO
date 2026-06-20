@@ -193,9 +193,8 @@ public class Equation
     //Return 0 if successful, other numbers for different error handlers?
     public int convertInfixToPrefix()
     {
-        Token[] result = new Token[tokenCount];
+        Stack result = new Stack(tokenCount);
         Stack operators = new Stack(tokenCount);
-        int index = 0;
         //Iterates through the equation in reverse
         for(int i = tokenCount-1; i > -1; i--)
         {
@@ -212,8 +211,7 @@ public class Equation
             // }
             if (t.getType() == Token.Type.OPERAND)
             {
-                result[index] = t;
-                index++;
+                result.push(t);
             }else{
                 //Checking for ) instead of ( as ) will appear first with a reversed equation
                 if (t.getOperator() == ')')
@@ -223,8 +221,7 @@ public class Equation
                 }else if (t.getOperator() == '('){
                     while((!operators.stackEmpty()) && (operators.top().getOperator() != ')')){
                         //operators.show();
-                        result[index] = operators.pop();
-                        index++;
+                        result.push(operators.pop());
                     }
                     operators.pop();
                     this.tokenCount--;
@@ -235,8 +232,7 @@ public class Equation
                         prec2 = operators.top().getPrecedence();
                         while(!operators.stackEmpty()  && (operators.top().getOperator() != ')') && (prec1 < prec2 || prec1 == prec2 && t.isRightAssociative()))
                         {
-                            result[index] = operators.pop();
-                            index++;
+                            result.push(operators.pop());
                             if(!operators.stackEmpty()){
                                 prec2 = operators.top().getPrecedence();
                             }
@@ -249,13 +245,14 @@ public class Equation
 
         while (!operators.stackEmpty())
         {
-            result[index] = operators.pop();
-            index++;
+            result.push(operators.pop());
         }
 
-        for (int i = 0; i < tokenCount; i++)
+        int i = 0;
+        while (!result.stackEmpty())
         {
-            this.equation[i] = result[tokenCount-1-i];
+            this.equation[i] = result.pop();
+            i++;
         }
 
         return 0;
