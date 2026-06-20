@@ -259,7 +259,6 @@ public class Equation
     }
 
     //For Debugging
-    //Slightly Deprecated
     public int convertInfixToPrefixPrintSteps()
     {
         Token[] result = new Token[tokenCount];
@@ -370,11 +369,11 @@ public class Equation
         }
     }
 
-    public double evaluatePrefix()
+    public int evaluatePrefix()
     {
         Stack operandTokens = new Stack(tokenCount);
         int i;
-        double finalResult;
+        int finalResult;
 
         for (i = tokenCount-1; i > -1 && !this.hasError; i--)
         {
@@ -385,8 +384,8 @@ public class Equation
             }
             else
             {
-                double operand1 = operandTokens.pop().getOperand();
-                double operand2 = operandTokens.pop().getOperand();
+                int operand1 = operandTokens.pop().getOperand();
+                int operand2 = operandTokens.pop().getOperand();
                 Token combined;
 
                 if (currToken.getOperator() == '+')
@@ -434,7 +433,7 @@ public class Equation
                 }
                 else
                 {
-                    combined = new Token(Math.pow(operand1, operand2));
+                    combined = new Token((int)Math.pow(operand1, operand2));
                     operandTokens.push(combined);
                 }
             }

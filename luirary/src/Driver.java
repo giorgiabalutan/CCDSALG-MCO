@@ -78,7 +78,7 @@ public class Driver
             equation.printEq();
             System.out.println();
 
-            double result = equation.evaluatePrefix();
+            int result = equation.evaluatePrefix();
 
             if (equation.hasError())
             {

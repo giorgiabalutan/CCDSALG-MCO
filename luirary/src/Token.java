@@ -2,12 +2,12 @@ public class Token
 {
     public enum Type {OPERAND, OPERATOR}
     private Type type;
-    private double operand;
+    private int operand;
     private char operator;
     private int precedence = -1;
     private boolean rightAssociativity = false;
 
-    public Token(double operand)
+    public Token(int operand)
     {
         type = Type.OPERAND;
         this.operand = operand;
@@ -42,7 +42,7 @@ public class Token
         }
     }
 
-    public void setOperand(double operand)
+    public void setOperand(int operand)
     {
         this.operand = operand;
     }
@@ -57,7 +57,7 @@ public class Token
         return this.type;
     }
 
-    public double getOperand()
+    public int getOperand()
     {
         return this.operand;
     }
