@@ -199,16 +199,6 @@ public class Equation
         for(int i = tokenCount-1; i > -1; i--)
         {
             Token t = this.equation[i];
-            // if(this.equation[i].getType() == Token.Type.OPERAND)
-            // {
-            //     System.out.println(this.equation[i].getOperand());
-            // }else{
-            //     System.out.println(this.equation[i].getOperator());
-            // }
-            // if(!operators.stackEmpty())
-            // {
-            //     System.out.println(operators.top().getOperator() != ')');
-            // }
             if (t.getType() == Token.Type.OPERAND)
             {
                 result.push(t);
@@ -220,7 +210,6 @@ public class Equation
                     this.tokenCount--;
                 }else if (t.getOperator() == '('){
                     while((!operators.stackEmpty()) && (operators.top().getOperator() != ')')){
-                        //operators.show();
                         result.push(operators.pop());
                     }
                     operators.pop();
@@ -278,16 +267,6 @@ public class Equation
                 System.out.print(t.getOperator() + " ");
             }
             System.out.println("");
-            // if(this.equation[i].getType() == Token.Type.OPERAND)
-            // {
-            //     System.out.println(this.equation[i].getOperand());
-            // }else{
-            //     System.out.println(this.equation[i].getOperator());
-            // }
-            // if(!operators.stackEmpty())
-            // {
-            //     System.out.println(operators.top().getOperator() != ')');
-            // }
             if (t.getType() == Token.Type.OPERAND)
             {
                 result[index] = t;
@@ -300,7 +279,6 @@ public class Equation
                     this.tokenCount--;
                 }else if (t.getOperator() == '('){
                     while((!operators.stackEmpty()) && (operators.top().getOperator() != ')')){
-                        //operators.show();
                         System.out.println("Popped " + operators.top().getOperator() + " from Operator Stack");
                         result[index] = operators.pop();
                         index++;
@@ -328,10 +306,8 @@ public class Equation
                     operators.push(t);
                 }
             }
-            //Print Operand Stack
             operators.show();
 
-            //Print Results
             for (int j = 0; j < index; j++) {
                 if(result[j].getType() == Token.Type.OPERAND)
                 {
@@ -434,7 +410,23 @@ public class Equation
                 }
                 else
                 {
-                    combined = new Token(Math.pow(operand1, operand2));
+                    // '^' exponentiation — check for overflow BEFORE storing the result.
+                    // Math.pow does not throw; it silently returns Double.POSITIVE_INFINITY
+                    // (or NEGATIVE_INFINITY, or NaN) when the true result is too large to
+                    // represent, so we must check explicitly.
+                    double powResult = Math.pow(operand1, operand2);
+
+                    if (Double.isInfinite(powResult) || Double.isNaN(powResult))
+                    {
+                        this.hasError = true;
+                        this.errorMessage = "Exponentiation overflow: " + (long) operand1
+                                + " ^ " + (long) operand2 + " is too large to represent";
+                        combined = new Token(0);
+                    }
+                    else
+                    {
+                        combined = new Token(powResult);
+                    }
                     operandTokens.push(combined);
                 }
             }
